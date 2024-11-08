@@ -45,25 +45,33 @@
 		{
 			Console.CursorVisible = false;
 
-			Generate();
-
-			Draw();
-
-			while (!IsEndGame())
+			do
 			{
-				var delta = GetInput();
+				ResetGameToDefault();
 
-				_deltaX = delta.deltaX;
-				_deltaY = delta.deltaY;
-
-				Logic();
+				Generate();
 
 				Draw();
+
+				while (!IsEndGame())
+				{
+					var delta = GetInput();
+
+					_deltaX = delta.deltaX;
+					_deltaY = delta.deltaY;
+
+					Logic();
+
+					Draw();
+				}
+
+				CheckIfWinGame();
+
+				DrawEndGameText();
+
+				Console.WriteLine("Play again? (Y / N)");
 			}
-
-			IsWinGame();
-
-			DrawEndGame();		
+			while (Console.ReadKey(true).Key == ConsoleKey.Y);			
 		}
 
 		private bool IsEndGame()
@@ -71,12 +79,12 @@
 			return _isReachedFinish || _movesCount <= 0;
 		}
 
-		private void IsReachedFinish()
+		private void CheckIfReachedFinish()
 		{
 			_isReachedFinish = _dogX == _finishX && _dogY == _finishY;
 		}
 
-		private void IsWinGame()
+		private void CheckIfWinGame()
 		{
 			_isWinGame = _isReachedFinish;
 		}
@@ -115,26 +123,14 @@
 
 		private (int deltaX, int deltaY) GetInput()
 		{
-			int deltaX = 0;
-			int deltaY = 0;
-
-			switch (Console.ReadKey().Key)
+			return Console.ReadKey(true).Key switch
 			{
-				case ConsoleKey.UpArrow or ConsoleKey.W:
-					deltaY = -1;
-					break;
-				case ConsoleKey.DownArrow or ConsoleKey.S:
-					deltaY = 1;
-					break;
-				case ConsoleKey.LeftArrow or ConsoleKey.A:
-					deltaX = -1;
-					break;
-				case ConsoleKey.RightArrow or ConsoleKey.D:
-					deltaX = 1;
-					break;
-			}
-
-			return (deltaX, deltaY);
+				ConsoleKey.UpArrow or ConsoleKey.W => (0, -1),
+				ConsoleKey.DownArrow or ConsoleKey.S => (0, 1),
+				ConsoleKey.LeftArrow or ConsoleKey.A => (-1, 0),
+				ConsoleKey.RightArrow or ConsoleKey.D => (1, 0),
+				_ => (0, 0),
+			};
 		}
 
 		private void Logic()
@@ -145,7 +141,7 @@
 
 			DecreaseMoves();
 
-			IsReachedFinish();
+			CheckIfReachedFinish();
 		}
 
 		private void TryGoTo(int newX, int newY)
@@ -260,6 +256,15 @@
 			PlaceDog();
 		}
 
+		private void ResetGameToDefault()
+		{
+			_isWinGame = false;
+			_isReachedFinish = false;
+			_isTakenJetpack = false;
+
+			_movesCount = DefaultMovesCount;
+		}
+
 		//////////////////////////////////////////////////
 
 		private void Draw()
@@ -298,7 +303,7 @@
 			Console.WriteLine($"\nMoves left: {_movesCount}");
 		}
 
-		private void DrawEndGame()
+		private void DrawEndGameText()
 		{
 			Console.Clear();
 
