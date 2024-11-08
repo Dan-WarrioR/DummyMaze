@@ -81,7 +81,10 @@
 
 		private void CheckIfReachedFinish()
 		{
-			_isReachedFinish = _dogX == _finishX && _dogY == _finishY;
+			if (_dogX == _finishX && _dogY == _finishY)
+			{
+				_isReachedFinish = true;
+			}
 		}
 
 		private void CheckIfWinGame()
@@ -167,19 +170,19 @@
 				return false;
 			}
 
-			if (_map[newX, newY] == WallIcon)
+			return _map[newX, newY] != WallIcon || CanPassThroughWall();
+		}
+
+		private bool CanPassThroughWall()
+		{
+			if (_isTakenJetpack)
 			{
-				if (_isTakenJetpack)
-				{
-					_isTakenJetpack = false;
+				_isTakenJetpack = false;
 
-					return true;
-				}
-
-				return false;
+				return true;
 			}
 
-			return true;
+			return false;
 		}
 
 		private bool CanPlaceWall(int x, int y)
